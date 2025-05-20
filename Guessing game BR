@@ -1,0 +1,60 @@
+use std::io;
+use rand::Rng;
+use std::cmp::Ordering;
+use colored::*;
+
+fn main() {
+    println!("🎲 Welcome to the Guessing Game!");
+
+    // Color selection
+    println!("Choose your color: red, green, yellow, blue, magenta, cyan, or white");
+    let color = loop {
+        let mut color_input = String::new();
+        io::stdin().read_line(&mut color_input).expect("Failed to read line");
+        let color = color_input.trim().to_lowercase();
+        match color.as_str() {
+            "red" | "green" | "yellow" | "blue" | "magenta" | "cyan" | "white" => break color,
+            _ => println!("Please enter a valid color: red, green, yellow, blue, magenta, cyan, or white"),
+        }
+    };
+
+    let secret_number = rand::thread_rng().gen_range(1..=100);
+
+    // Uncomment this if you want to cheat 😁
+    // println!("(Debug) The secret number is: {}", secret_number);
+
+    loop {
+        println!("{}", "Please input your guess (1-100):".color(&color));
+
+        let mut guess = String::new();
+
+        io::stdin()
+            .read_line(&mut guess)
+            .expect("Failed to read line");
+
+        // Convert guess to a number
+        let guess: u32 = match guess.trim().parse() {
+            Ok(num) => num,
+            Err(_) => {
+                println!("{}", "⚠️ Please enter a valid number!".color(&color));
+                continue;
+            }
+        };
+
+        if guess < 1 || guess > 100 {
+            println!("{}", "⚠️ Please enter a number between 1 and 100!".color(&color));
+            continue;
+        }
+
+        println!("You guessed: {}", guess.to_string().color(&color));
+
+        match guess.cmp(&secret_number) {
+            Ordering::Less => println!("{}", "Too small! 📉".color(&color)),
+            Ordering::Greater => println!("{}", "Too big! 📈".color(&color)),
+            Ordering::Equal => {
+                println!("{}", "You win! 🎉".color(&color));
+                break;
+            }
+        }
+    }
+}
